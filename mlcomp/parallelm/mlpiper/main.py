@@ -40,6 +40,7 @@ import sys
 import tempfile
 
 from parallelm.mlpiper.mlpiper import MLPiper
+from parallelm.mlpiper.wizard import DemoShell
 from parallelm.pipeline.component_language import ComponentLanguage
 from parallelm.mlcomp import version
 
@@ -55,6 +56,7 @@ def parse_args():
     _add_deploy_sub_parser(subparsers, 'run', 'Prepare and run pipeline/component')
     _add_run_deployment_sub_parser(subparsers)
     _add_deps_sub_parser(subparsers)
+    _add_wizard_sub_parser(subparsers)
 
     # General arguments
     parser.add_argument('--version', action='version',
@@ -137,6 +139,10 @@ def _add_deps_sub_parser(subparsers):
     deps.add_argument('-r', '--comp-root', default=None, required=True,
                                 help='MLPiper components root dir. Recursively detecting components')
 
+def _add_wizard_sub_parser(subparsers):
+    # Get Python/R modules dependencies for the given pipeline or component
+    subparsers.add_parser('wizard', help='Start component creation wizard')
+
 
 def main(bin_dir=None):
     options = parse_args()
@@ -188,6 +194,11 @@ def main(bin_dir=None):
 
         ml_piper.deps(options.lang)
         shutil.rmtree(tmp_dir)
+
+    elif options.subparser_name in ("wizard"):
+        shell = DemoShell()
+        rc = shell.cmdloop()
+        sys.exit(rc)
 
     else:
         raise Exception("subcommand: {} is not supported".format(options.subparser_name))
